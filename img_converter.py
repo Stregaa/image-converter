@@ -2,7 +2,7 @@
 # pip install opencv-python
 
 import cv2
-import numpy as numpy
+import numpy as np
 
 shades = 10
 
@@ -14,7 +14,7 @@ def input_image():
 
 def type_of_conversion():
     # Asks user for type of conversion
-    conversion = int(input("Greyscale[1], paint-filter[2], or both[3]? "))
+    conversion = int(input("Greyscale[1], paint-filter[2], both[3], or the bonus sp00ky filter[4]? "))
     
     return conversion
 
@@ -29,13 +29,13 @@ def convert_paint(file):
     # Converts image to paint and saves result
     img = cv2.imread(file)
     
-    # Converts image to BGR as a float
+    # Converts image to RGB as a float
     bgr = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    bgr = bgr.astype(numpy.float32)/255
+    bgr = bgr.astype(np.float32)/255
 
     # Quantize and convert back to range 0 to 255 as 8-bits
-    paint = 255*numpy.floor(bgr*shades+0.5)/shades
-    paint = paint.clip(0,255).astype(numpy.uint8)
+    paint = 255*np.floor(bgr*shades+0.5)/shades
+    paint = paint.clip(0,255).astype(np.uint8)
 
     save_image(paint, file)
 
@@ -47,13 +47,29 @@ def convert_both(file):
     
     # Converts image to greyscale as a float
     grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    grey = grey.astype(numpy.float32)/255
+    grey = grey.astype(np.float32)/255
 
     # Quantize and convert back to range 0 to 255 as 8-bits
-    both = 255*numpy.floor(grey*shades+0.5)/shades
-    both = both.clip(0,255).astype(numpy.uint8)
+    both = 255*np.floor(grey*shades+0.5)/shades
+    both = both.clip(0,255).astype(np.uint8)
 
     save_image(both, file)
+
+    return
+
+def convert_spooky(file):
+    # Converts image to paint and saves result
+    img = cv2.imread(file)
+    
+    # Converts image to RGB as a float
+    bgr = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    bgr = bgr.astype(np.float32)/255
+
+    # Quantize and convert back to range 0 to 255 as 8-bits
+    paint = 255*np.floor(bgr*shades+0.5)/shades
+    paint = paint.clip(0,255).astype(np.uint8)
+
+    save_image(paint, file)
 
     return
 
@@ -79,8 +95,12 @@ def main():
         convert_both(file)
         print("Applied both greyscale and paint filter!")
     
+    elif conversion_type == 4:
+        convert_spooky(file)
+        print("Applied sp00ky filter!")
+    
     else:
-        print("Invalid conversion type - please choose 1, 2, or 3.")
+        print("Invalid conversion type - please choose 1, 2, 3, or 4.")
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
