@@ -27,9 +27,17 @@ def convert_grey(file):
 
 def convert_paint(file):
     # Converts image to paint and saves result
-    img = cv2.imread(file, 0)
+    img = cv2.imread(file)
     
-    save_image(img, file)
+    # Converts image to BGR as a float
+    bgr = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    bgr = bgr.astype(numpy.float32)/255
+
+    # Quantize and convert back to range 0 to 255 as 8-bits
+    paint = 255*numpy.floor(bgr*shades+0.5)/shades
+    paint = paint.clip(0,255).astype(numpy.uint8)
+
+    save_image(paint, file)
 
     return
 
@@ -37,7 +45,7 @@ def convert_both(file):
     # Converts image to both greyscale and paint and saves result
     img = cv2.imread(file)
     
-    # Convert image to greyscale as a float
+    # Converts image to greyscale as a float
     grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     grey = grey.astype(numpy.float32)/255
 
@@ -64,11 +72,12 @@ def main():
         print("Applied greyscale!")
     
     elif conversion_type == 2:
-        print("Applied filter!")
+        convert_paint(file)
+        print("Applied paint filter!")
 
     elif conversion_type == 3:
         convert_both(file)
-        print("Applied both greyscale and filter!")
+        print("Applied both greyscale and paint filter!")
     
     else:
         print("Invalid conversion type - please choose 1, 2, or 3.")
