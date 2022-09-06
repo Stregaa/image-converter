@@ -1,10 +1,11 @@
-# Converts images to greyscale
+# Image converter program
 # pip install opencv-python
 
+from sklearn.cluster import MiniBatchKMeans
 import cv2
 import numpy as np
 
-shades = 10
+shades = 16
 
 def input_image():
     # Asks user for the file to be converted
@@ -29,15 +30,27 @@ def convert_paint(file):
     # Converts image to paint and saves result
     img = cv2.imread(file)
     
-    # Converts image to RGB as a float
-    bgr = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    bgr = bgr.astype(np.float32)/255
+    # Gets height and width of image
+    h, w = img.shape[:2]
+    
+    # Converts image from BGR to L*a*b
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
 
-    # Quantize and convert back to range 0 to 255 as 8-bits
-    paint = 255*np.floor(bgr*shades+0.5)/shades
-    paint = paint.clip(0,255).astype(np.uint8)
+    # Reshapes image into a feature vector
+    img = img.reshape(img.shape[0] * img.shape[1], 3)
 
-    save_image(paint, file)
+    # Applies k-means clustering then creates quantized image
+    clusters = MiniBatchKMeans(n_clusters=shades, batch_size=3072)
+    labels = clusters.fit_predict(img)
+    quantized = clusters.cluster_centers_.astype("uint8")[labels]
+
+    # Reshapes feature vectors to images
+    quantized = quantized.reshape(h, w, 3)
+
+    # Converts image from L*a*b back to BGR
+    quantized = cv2.cvtColor(quantized, cv2.COLOR_LAB2BGR)
+
+    save_image(quantized, file)
 
     return
 
