@@ -1,6 +1,7 @@
 # Image converter program
 # pip install opencv-python
 
+from pathlib import Path
 from sklearn.cluster import MiniBatchKMeans
 import cv2
 import numpy as np
@@ -10,14 +11,23 @@ shades = 16
 def input_image():
     # Asks user for the file to be converted
     file = input("File name of image: ")
+    file_path = Path(file)
     
-    return file
+    if file_path.is_file():
+        return file
+    
+    else:
+        print("Image doesn't exist, check file name.")
+        quit()
 
 def type_of_conversion():
     # Asks user for type of conversion
-    conversion = int(input("Greyscale[1], paint-filter[2], both[3], or the bonus sp00ky filter[4]? "))
-    
-    return conversion
+    try:
+        conversion = int(input("Greyscale[1], paint-filter[2], both[3], or the sp00ky surprise filter[4]? "))
+        return conversion
+    except ValueError:
+        print("No conversion type given - please choose 1, 2, 3, or 4.")    
+        quit()
 
 def convert_grey(file):
     # Converts image to greyscale and saves result
@@ -110,10 +120,11 @@ def main():
     
     elif conversion_type == 4:
         convert_spooky(file)
-        print("Applied sp00ky filter!")
-    
+        print("Applied sp00ky surprise filter!")
+
     else:
         print("Invalid conversion type - please choose 1, 2, 3, or 4.")
+        quit()
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
